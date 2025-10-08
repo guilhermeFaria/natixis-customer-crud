@@ -1,0 +1,144 @@
+<mat-card class="customer-card">
+  <h2>Customers</h2>
+
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+  <div *ngIf="successMessage" class="success-message">
+    {{ successMessage }}
+  </div>
+
+  <button mat-raised-button color="primary" (click)="openForm()">
+    <mat-icon>person_add</mat-icon> Add Customer
+  </button>
+
+  <table mat-table [dataSource]="customers" class="mat-elevation-z8" *ngIf="customers.length > 0; else noData">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let c">{{ c.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="birthDate">
+      <th mat-header-cell *matHeaderCellDef>Birth Date</th>
+      <td mat-cell *matCellDef="let c">{{ c.birthDate | date: 'dd/MM/yyyy' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="vatNumber">
+      <th mat-header-cell *matHeaderCellDef>VAT Number</th>
+      <td mat-cell *matCellDef="let c">{{ c.vatNumber }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="addresses">
+      <th mat-header-cell *matHeaderCellDef>Addresses</th>
+      <td mat-cell *matCellDef="let c">
+        <div *ngFor="let addr of c.addressList">
+          {{ addr.street }}, {{ addr.number }} - {{ addr.postalCode }} {{ addr.county }}/{{ addr.district }}
+        </div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let c">
+        <button mat-icon-button color="accent" (click)="editCustomer(c)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteCustomer(c.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="['name','birthDate','vatNumber','addresses','actions']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['name','birthDate','vatNumber','addresses','actions']"></tr>
+  </table>
+
+  <ng-template #noData>
+    <p>No customers found.</p>
+  </ng-template>
+
+  <mat-paginator [length]="totalElements"
+                 [pageSize]="size"
+                 [pageSizeOptions]="pageSizes"
+                 (page)="onPageChange($event)">
+  </mat-paginator>
+</mat-card>
+
+<mat-card *ngIf="showForm" class="customer-form-card">
+  <h3>{{ editingCustomerId ? 'Edit Customer' : 'Add Customer' }}</h3>
+
+  <form [formGroup]="customerForm" (ngSubmit)="submit()">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Birth Date</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="birthDate" />
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>VAT Number</mat-label>
+      <input matInput formControlName="vatNumber" />
+    </mat-form-field>
+
+    <div formArrayName="addressList">
+      <h4>Addresses</h4>
+      <div *ngFor="let addr of addressList.controls; let i = index" [formGroupName]="i" class="address-group">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Street</mat-label>
+          <input matInput formControlName="street" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="quarter-width">
+          <mat-label>Number</mat-label>
+          <input matInput formControlName="number" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="quarter-width">
+          <mat-label>Complement</mat-label>
+          <input matInput formControlName="complement" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="quarter-width">
+          <mat-label>Postal Code</mat-label>
+          <input matInput formControlName="postalCode" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>County</mat-label>
+          <input matInput formControlName="county" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>District</mat-label>
+          <input matInput formControlName="district" />
+        </mat-form-field>
+
+        <button mat-stroked-button color="warn" type="button" (click)="removeAddress(i)">Remove</button>
+      </div>
+    </div>
+
+    <div class="postal-add">
+      <mat-form-field appearance="outline">
+        <mat-label>Postal Code</mat-label>
+        <input matInput #postalCodeInput placeholder="e.g. 3020-107" />
+      </mat-form-field>
+      <button mat-stroked-button color="primary" type="button"
+              (click)="addAddressByPostalCode(postalCodeInput.value)" [disabled]="loadingAddress">
+        {{ loadingAddress ? 'Loading...' : 'Add Address' }}
+      </button>
+      <mat-progress-spinner *ngIf="loadingAddress" diameter="20" mode="indeterminate"></mat-progress-spinner>
+    </div>
+
+    <div class="form-actions">
+      <button mat-raised-button color="primary" type="submit" [disabled]="customerForm.invalid">
+        {{ editingCustomerId ? 'Update' : 'Save' }}
+      </button>
+      <button mat-button type="button" (click)="cancelForm()">Cancel</button>
+    </div>
+  </form>
+</mat-card>

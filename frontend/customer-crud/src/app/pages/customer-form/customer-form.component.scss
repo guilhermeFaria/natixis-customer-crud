@@ -1,0 +1,54 @@
+.customer-card {
+  margin: 20px;
+  padding: 20px;
+}
+
+.customer-form-card {
+  margin: 20px;
+  padding: 20px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  width: 48%;
+  margin-right: 2%;
+}
+
+.quarter-width {
+  width: 23%;
+  margin-right: 2%;
+}
+
+.address-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.form-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 10px;
+}
+
+.success-message {
+  color: green;
+  margin-bottom: 10px;
+}
+
+.postal-add {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 15px 0;
+}
